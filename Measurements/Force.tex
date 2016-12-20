@@ -1,0 +1,126 @@
+\section{Force measurements for the end-effector} % \label{app:...}
+
+As the Endowrist tool is highly nonlinear, measurement of how the end-effector responds to external force is made. These measurements are made for the model estimation of the EndoWrist.  
+
+\subsection*{Purpose:}
+The purpose is to define a dynamic model for the EndoWrist.
+
+The measurements are done on three different setups:
+\begin{itemize}
+%\item Pull/push force for each clamp on the end-effector (yaw),
+%\item Pull/push of two clamps where the force for both clamps is applied in the same direction (yaw),
+\item Grip force of the clamps (yaw),
+\item Down/upwards force of the pitch on the end-effector (pitch),
+\item and the rotation of the end-effector (roll).
+\end{itemize}
+
+In the following subsections the different tests defined in the list above are made. For making the force measurements, item one to three, different attachment to a load-cell are made. These can be seen on \figref{fig:Overview_endowrist_attachment}.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}{.48\textwidth}
+		\centering
+		\vspace{-12pt}
+		\includegraphics[width=\linewidth,height=5.4cm]{clamp_mes.png}
+		\caption{Upper clamp which is allowed to add or release force applied to the load-cell.}
+		\label{fig:one_clamp}
+	\end{subfigure}
+	% \begin{subfigure}{.32\textwidth}
+	% 	\centering
+	% 	\includegraphics[width=\linewidth]{Two_clamp.jpg}
+	% 	\caption{The clamps are put together and connected to the load-cell such that the pull/push force can be measured.}
+	% 	\label{fig:two_clamp}
+	% \end{subfigure}
+	\begin{subfigure}{.48\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Pitch_clamp.jpg}
+		\caption{The end-effectors two clamps are attached to the load-cell, such that the pitch force can be measured.}
+		\label{fig:pitch_force}
+	\end{subfigure}
+\caption{Attachments between the end-effector and the load-cell used for force measurements}
+\label{fig:Overview_endowrist_attachment}
+\end{figure}
+
+\subsection*{Electrical circuit}
+For making the force measurement for the EndoWrist a simple hardware construction was build. A simple block diagram of setup can be seen on \figref{fig:arduino_loadcell}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}%[every node/.style={draw,outer sep=0pt,thick}]
+
+\draw [ultra thick] (0,0) rectangle (2,2);
+\node at (1,1) {Load-cell};
+\draw [->,ultra thick] (0,1) -- (-1,1);
+
+\draw [ultra thick] (-3,0) rectangle (-1,2);
+\node at (-2,1) {Amplifier};
+\draw [<->,ultra thick] (-3,1) -- (-4,1);
+
+\draw [ultra thick] (3,3) rectangle (5,5);
+\node at (4,4) {Motor};
+\draw [<-,ultra thick] (2,4) -- (3,4);
+\draw [->,ultra thick] (2,4) -- (3,4);
+
+\draw [ultra thick] (0,3) rectangle (2,5);
+\node at (1,4) {sbRIO};
+\draw [<-,ultra thick] (0,4) -- (-1,4);
+
+\draw [ultra thick] (-3,3) rectangle (-1,5);
+\node at (-2,4) {DAC};
+\draw [<-,ultra thick] (-3,4) -- (-4,4);
+
+\draw [ultra thick] (-6,0) rectangle (-4,5);
+\node at (-5,2.5) {Arduino};
+
+\end{tikzpicture}
+\caption{Diagram of the test setup for the force measurements.}
+\label{fig:arduino_loadcell}
+\end{figure}
+
+The load-cell's output is amplified and send to an Arduino which calculate the force applied to the load-cell. The force is then translated to a corresponding voltage output, $mV\cdot\frac{g}{4\cdot mV}$. Since the Arduino does not have a digital to analog converter (DAC), the voltage is translated to a binary code and send to a "Max531 DAC" through a serial peripheral interface (SPI). The voltage output from the DAC is read at the sbRIO board which also samples the current send to the motor, motor position and time stamps.
+
+As explained, an Arduino is used for the translation of force applied to the load-cell. This was done since a library for the HX711 amplifier was made for the Arduino IDE\cite{Git_HX711}. This library included features such as calibration, reset and averaging of the load-cell. 
+
+
+
+%\todo{not in use}
+\input{Data/Measurement/Pull_clamp}
+%\todo{not in use}
+%\input{Data/Measurement/Pull_clampp}
+
+%\input{Data/Measurement/Push_clamp}
+%\todo{not in use}
+%\input{Data/Measurement/Pull_Two_clamp}
+%\todo{not in use}
+%\input{Data/Measurement/Push_Two_clamp}
+
+\input{Data/Measurement/Pitch_pull}
+
+%\input{Data/Measurement/Pitch_push}
+
+\input{Data/Measurement/Roll_endo}
+
+
+
+
+% \begin{figure}[H]
+% 	\centering
+% 	\begin{subfigure}{.45\textwidth}
+% 		\centering
+% 		\vspace{24pt}
+% 		\includegraphics[width=\linewidth]{overall_force.jpg}
+% 		\caption{The entire test setup. From the right, a load cell for measuring the downwards force, a piece of wood for stiffening the Endowrist and keeping it it place and the Endowrist holder with motors.}
+% 		\label{fig:entire_force_testsetup}
+% 	\end{subfigure}
+% 	\begin{subfigure}{.45\textwidth}
+% 		\centering
+% 		\includegraphics[width=\linewidth]{endeffector_force.jpg}
+% 		\caption{The load cell with the attached end-effector.}
+% 		\label{fig:endeffector_force}
+% 	\end{subfigure}
+% \caption{Test setup for the force estimation of the end-effector.}
+% \label{fig:Overview_force}
+% \end{figure}
+
+
+

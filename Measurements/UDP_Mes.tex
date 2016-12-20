@@ -1,0 +1,87 @@
+\subsection{UDP measurements}\label{sec_udp_mes}
+
+\subsection*{Purpose:}
+
+The purpose is to determine the maximum frequency that can be used in our system with the UDP protocol. To do so, we will measure the delay between to received packets and jitter and look at those values as a function of the delay used in the sending loop.
+
+\subsection*{Test equipment:}
+
+The sbRIO 9636 is connected to a computer running Ubuntu 14.04 LTS via an Ethernet cable of 1 gpbs. The computer runs the ROS nodes that are used for the project, thus it communicates with both the Geomagic Touch and the sbRIO. The sbRIO as well runs the entire code of the project.
+
+\subsection*{Procedure:}
+
+\begin{enumerate}
+	\item The sbRIO is started and connected to the computer.
+	\item The ROS node is started.
+	\item Wireshark is started.% using this command: $tshark -i 1 -f udp -a duration:20 -w ~/wireshark_capture$
+	\item Once the Wireshark recording is done the ROS node is stopped.
+	\item The log files are retrieved to be analyzed using Matlab and Wireshark.
+\end{enumerate}
+Those steps are repeated for both the serial and parallel case for the following settings: 100 Hz, 500 Hz and 1000 Hz. These settings do not account for computation time and the period of waiting to receive a packet, thus it is expected that the real frequency is lower than the one set.
+
+
+\subsection*{Measuring data:}
+The data resulting from the measurements of the designed communication protocol are
+gathered in\tabref{tab:udp_appendix}.
+\begin{center}
+  $\begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \text{Frequency (Hz)} & \text{delay (ms)} & \text{Jitter ($\mu$s)} & \text{Packet loss (\%)}\\
+    \hline
+    99 & 10.1 & 4.66E-2 & 0 \\
+    \hline
+    474 & 2.1 & 5.51E-2 & 0.2 \\
+    \hline
+    638 & 1.6 & 1.16E-2 & 1.2 \\
+    \hline
+  \end{tabular}$
+	\captionof{table}{Measurements of the performances for the new communication protocol}
+    \label{tab:udp_appendix}
+    
+\end{center}
+% \begin{figure}[H]
+% 	\centering
+% 	\input{../Worksheets/rapport/pictures/UDP_10ms}
+% 	\caption{10ms}
+% \end{figure} 
+% \begin{figure}[H]
+% 		\centering
+% 	    \input{../Worksheets/rapport/pictures/UDP_2ms}
+% 	    \caption{2ms}
+% \end{figure} 
+% \begin{figure}[H]
+% 	    \centering
+% 	    \input{../Worksheets/rapport/pictures/UDP_1ms}
+% 	    \caption{1ms}
+% \end{figure} 
+% \todo{should i remove the histograms?}
+% \begin{figure}[H]
+% \centering
+% 	\begin{subfigure}{.45\textwidth}
+% 	    \centering
+% 	    \input{../Worksheets/rapport/pictures/UDP_10ms}
+% 	    \caption{10ms}
+% 	\end{subfigure} 
+% 	\begin{subfigure}{.45\textwidth}
+% 	    \centering
+% 	    \input{../Worksheets/rapport/pictures/UDP_2ms}
+% 	    \caption{2ms}
+% 	\end{subfigure} 
+% 	\begin{subfigure}{.45\textwidth}
+% 	    \centering
+% 	    \input{../Worksheets/rapport/pictures/UDP_1ms}
+% 	    \caption{1ms}
+% 	\end{subfigure} 
+% 	\label{Representation of the delay for different frequencies}
+% \end{figure}
+
+\subsection*{Results:}
+
+From a frequency of 99 Hz to 474 Hz, it can be seen that the jitter as well as the packet loss increase. As both of them are mainly consequences of congestion on the network\cite{cisco_jitter} this phenomenon was expected. However, when the frequency is increased to 638 Hz, the jitter decreases and the packet loss keep increasing. The cause is that the jitter increases but the driver only waits 1 ms to receive a packet from the sbRIO after sending and thus rejects the packets coming after that deadline. The packet loss could be reduced by increasing the waiting time but that would reduce the frequency. A trade-off between frequency and error rate has to be made.
+The data for the maximum frequency of the driver could not be collected as the congestion on the network becomes too important. When that happens the communication does not behave as intended and each device send more than one packet in a row.
+
+\subsection*{Conclusion:}
+
+The communication cannot reach frequencies higher than 638 Hz due to congestion which does not meet the requirements. However by implementing the new communication protocol the refresh was increased from 100 Hz to 638 Hz. Solutions to further improve the refresh rate are discussed in \chapref{cha:discussion}
+% To improve the communication to 1000 Hz, two axis are considered. The first one is to implement a protocol that has a congestion control feature as congestion seemed to be the cause of the behavior. The second one is to have the computer running only the code dedicated to the project as it is possible for the driver to reach 981 Hz when force estimation and the communication with the Geomagic Touch are not running. This could be done by using a real-time operating system like RTAI. Those solutions were not investigated any further because of the time available for the project.
+% \todo{should i mention RTAI or is it useless?}
